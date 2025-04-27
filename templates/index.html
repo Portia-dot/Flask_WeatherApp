@@ -9,200 +9,209 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="location-info">
-                <div class="location-name">Kamloops, BC</div>
-                <div class="current-weather">
-                    <div class="current-temp">17°C</div>
-                    <div class="weather-condition">Mostly Cloudy</div>
-                </div>
-            </div>
-            <form action="" method="POST">
-                <div class="search-box">
-                    <input type="text" name = "user_search" placeholder="Search location...">
-                </div>
-            </form>
-
-        </div>
-
-        <!-- Middle Section -->
-        <div class="middle-section">
-            <!-- Left Panel: Weather Details -->
-            <div class="weather-details">
-                <h3>Current Weather</h3>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Feels Like</div>
-                        <div class="detail-value">15°C</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Air Quality</div>
-                        <div class="detail-value">Good</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Humidity</div>
-                        <div class="detail-value">65%</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Wind</div>
-                        <div class="detail-value">8 km/h</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">UV Index</div>
-                        <div class="detail-value">3 (Moderate)</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Pressure</div>
-                        <div class="detail-value">1015 hPa</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Visibility</div>
-                        <div class="detail-value">10 km</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Dew Point</div>
-                        <div class="detail-value">9°C</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Center Panel: Map -->
-            <div class="map-container">
-                <h3>Precipitation Map</h3>
-                <div class="map-placeholder">
-                    <span>Weather Map</span>
-                </div>
-                <button class="map-button">Open Map</button>
-            </div>
-
-            <!-- Right Panel: Info Box -->
-            <div class="info-box">
-                <h3>Weather Information</h3>
-                <p>This space could be used for weather alerts, ads, or additional information.</p>
-                <i class="fas fa-info-circle fa-3x" style="margin-top: 20px; color: var(--accent-color);"></i>
+<div class="container">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="location-info">
+            {% if city_info %}
+                <div class="location-name">{{ city_info.city }}, {{ city_info.state }}</div>
+            {% else %}
+                <div class="location-name">London, UK</div>
+            {% endif %}
+            <div class="current-weather">
+                <div class="current-temp">{{ weather.temperature }}</div>
+                <div class="weather-condition">{{ weather.clouds}}</div>
             </div>
         </div>
-
-        <!-- Tabs Section -->
-        <div class="tabs-section">
-            <div class="tabs">
-                <div class="tab active">Overview</div>
-                <div class="tab">Precipitation</div>
-                <div class="tab">Wind</div>
-                <div class="tab">Air Quality</div>
-                <div class="tab">Humidity</div>
-                <div class="tab">Cloud Cover</div>
+        <form action="" method="POST">
+            <div class="search-box">
+                <input type="text" name = "user_search" placeholder="Search location...">
             </div>
-        </div>
+        </form>
 
-        <!-- Forecast Section -->
-        <div class="forecast-section">
-            <div class="forecast-header">
-                <div class="forecast-title">7-Day Forecast</div>
-                <div class="view-toggle">
-                    <button class="toggle-btn active">Chart</button>
-                    <button class="toggle-btn">List</button>
+    </div>
+
+    <!-- Middle Section -->
+    <div class="middle-section">
+        <!-- Left Panel: Weather Details -->
+        <div class="weather-details">
+            <h3>Current Weather</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Feels Like</div>
+                    <div class="detail-value">{{ weather.feels_like }}°C</div>
                 </div>
-            </div>
-            <div class="forecast-cards">
-                <!-- Day 1 -->
-                <div class="forecast-card">
-                    <div class="day">Mon</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-cloud-sun" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">19°C</div>
-                    <div class="temp-low">12°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">Air Quality</div>
+                    {% if weather and weather.air_quality %}
+                        <div class="detail-value">{{ weather.air_quality.air_quality }}</div>
+                    {% else %}
+                        <div class="detail-value">Air quality data not available</div>
+                    {% endif %}
+
                 </div>
-                <!-- Day 2 -->
-                <div class="forecast-card">
-                    <div class="day">Tue</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-cloud" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">17°C</div>
-                    <div class="temp-low">11°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">Humidity</div>
+                    <div class="detail-value">{{ weather.humidity }}%</div>
                 </div>
-                <!-- Day 3 -->
-                <div class="forecast-card">
-                    <div class="day">Wed</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-cloud-rain" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">15°C</div>
-                    <div class="temp-low">10°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">Wind</div>
+                    <div class="detail-value">{{ weather.wind }} km/h</div>
                 </div>
-                <!-- Day 4 -->
-                <div class="forecast-card">
-                    <div class="day">Thu</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-cloud-showers-heavy" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">14°C</div>
-                    <div class="temp-low">9°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">UV Index</div>
+                    <div class="detail-value">{{ weather.uvi }}</div>
                 </div>
-                <!-- Day 5 -->
-                <div class="forecast-card">
-                    <div class="day">Fri</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-cloud-sun" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">16°C</div>
-                    <div class="temp-low">10°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">Pressure</div>
+                    <div class="detail-value">{{ weather.pressure }} hPa</div>
                 </div>
-                <!-- Day 6 -->
-                <div class="forecast-card">
-                    <div class="day">Sat</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-sun" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">18°C</div>
-                    <div class="temp-low">12°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">Visibility</div>
+                    <div class="detail-value">{{ weather.visibility }} km</div>
                 </div>
-                <!-- Day 7 -->
-                <div class="forecast-card">
-                    <div class="day">Sun</div>
-                    <div class="forecast-icon">
-                        <i class="fas fa-sun" style="color: var(--accent-color);"></i>
-                    </div>
-                    <div class="temp-high">20°C</div>
-                    <div class="temp-low">13°C</div>
+                <div class="detail-item">
+                    <div class="detail-label">Dew Point</div>
+                    <div class="detail-value">{{ weather.dew_point }}°C</div>
                 </div>
             </div>
         </div>
 
-        <!-- Hourly Graph -->
-        <div class="hourly-graph">
-            <div class="graph-placeholder">
-                <span>Hourly Temperature Graph</span>
+        <!-- Center Panel: Map -->
+        <div class="map-container">
+            <h3>Precipitation Map</h3>
+            <div class="map-placeholder">
+                <span>Weather Map</span>
+            </div>
+            <button class="map-button">Open Map</button>
+        </div>
+
+        <!-- Right Panel: Info Box -->
+        <div class="info-box">
+            <h3>Weather Information</h3>
+            <p>This space could be used for weather alerts, ads, or additional information.</p>
+            <i class="fas fa-info-circle fa-3x" style="margin-top: 20px; color: var(--accent-color);"></i>
+        </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="tabs-section">
+        <div class="tabs">
+            <div class="tab active">Overview</div>
+            <div class="tab">Precipitation</div>
+            <div class="tab">Wind</div>
+            <div class="tab">Air Quality</div>
+            <div class="tab">Humidity</div>
+            <div class="tab">Cloud Cover</div>
+        </div>
+    </div>
+
+    <!-- Forecast Section -->
+    <div class="forecast-section">
+        <div class="forecast-header">
+            <div class="forecast-title">7-Day Forecast</div>
+            <div class="view-toggle">
+                <button class="toggle-btn active">Chart</button>
+                <button class="toggle-btn">List</button>
+            </div>
+        </div>
+        <div class="forecast-cards">
+            <!-- Day 1 -->
+            <div class="forecast-card">
+                <div class="day">Mon</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-cloud-sun" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">19°C</div>
+                <div class="temp-low">12°C</div>
+            </div>
+            <!-- Day 2 -->
+            <div class="forecast-card">
+                <div class="day">Tue</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-cloud" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">17°C</div>
+                <div class="temp-low">11°C</div>
+            </div>
+            <!-- Day 3 -->
+            <div class="forecast-card">
+                <div class="day">Wed</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-cloud-rain" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">15°C</div>
+                <div class="temp-low">10°C</div>
+            </div>
+            <!-- Day 4 -->
+            <div class="forecast-card">
+                <div class="day">Thu</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-cloud-showers-heavy" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">14°C</div>
+                <div class="temp-low">9°C</div>
+            </div>
+            <!-- Day 5 -->
+            <div class="forecast-card">
+                <div class="day">Fri</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-cloud-sun" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">16°C</div>
+                <div class="temp-low">10°C</div>
+            </div>
+            <!-- Day 6 -->
+            <div class="forecast-card">
+                <div class="day">Sat</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-sun" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">18°C</div>
+                <div class="temp-low">12°C</div>
+            </div>
+            <!-- Day 7 -->
+            <div class="forecast-card">
+                <div class="day">Sun</div>
+                <div class="forecast-icon">
+                    <i class="fas fa-sun" style="color: var(--accent-color);"></i>
+                </div>
+                <div class="temp-high">20°C</div>
+                <div class="temp-low">13°C</div>
             </div>
         </div>
     </div>
 
-    <!-- Optional JavaScript for interactivity -->
-    <script>
-        // This would be replaced with actual weather data and functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab switching
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
+    <!-- Hourly Graph -->
+    <div class="hourly-graph">
+        <div class="graph-placeholder">
+            <span>Hourly Temperature Graph</span>
+        </div>
+    </div>
+</div>
 
-            // Toggle buttons
-            const toggleBtns = document.querySelectorAll('.toggle-btn');
-            toggleBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    toggleBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
+<!-- Optional JavaScript for interactivity -->
+<script>
+    // This would be replaced with actual weather data and functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
             });
         });
-    </script>
+
+        // Toggle buttons
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                toggleBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
 </body>
 </html>

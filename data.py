@@ -33,18 +33,18 @@ def visibility_to_km(m):
     return round(m / 1000, 2)
 
 class DataManager:
-    def __init__(self):
+    def __init__(self, city_name = 'Montreal'):
         self.open_weather_api = None
         self.geo_coding_url = None
-        self.city_name = None
+        self.city_name = city_name
         self.weather_data = None
         self.api_key = api_key
         self.lat = None
         self.lon = None
-        self.exclude = 'current'
         self.state = None
         self.country = None
         self.air_pollution_data = None
+        self.get_weather_by_city(self.city_name)
 
     def fetch_geocoding_data(self):
         self.geo_coding_url = f'http://api.openweathermap.org/geo/1.0/direct?q={self.city_name}&limit={1}&appid={self.api_key}'
@@ -85,6 +85,7 @@ class DataManager:
         return air_pollution_data
 
     def get_weather_by_city(self, city_name):
+        print(f'Called', city_name, 'for weather data')
         self.city_name = city_name
         lat_lon = self.fetch_geocoding_data()
         if not lat_lon or not self.lat or not self.lon :

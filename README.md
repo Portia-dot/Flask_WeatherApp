@@ -42,7 +42,7 @@ You can obtain an API key by signing up at [OpenWeather](https://openweathermap.
 
 1. Clone the repository
 ```
-git clone <repository-url>
+git clone https://github.com/username/WeatherApp.git
 ```
 
 2. Navigate to the project directory
@@ -84,6 +84,37 @@ WeatherApp/
 └── templates/              # HTML templates
     └── index.html          # Main page template
 ```
+
+## GitHub Repository Setup
+
+To create a new GitHub repository and push this project:
+
+1. Create a new repository on GitHub:
+   - Go to [GitHub](https://github.com/) and sign in
+   - Click the "+" icon in the top right and select "New repository"
+   - Name your repository "WeatherApp"
+   - Choose public or private visibility
+   - Do not initialize with README, .gitignore, or license (we already have these)
+   - Click "Create repository"
+
+2. Push your local repository to GitHub:
+   ```
+   # If you haven't already initialized a Git repository
+   git init
+   git add .
+   git commit -m "Initial commit: Weather App with Flask"
+
+   # Add the remote repository URL (replace 'username' with your GitHub username)
+   git remote add origin https://github.com/username/WeatherApp.git
+
+   # Push to GitHub
+   git push -u origin master
+   ```
+
+3. Verify your repository is now on GitHub by visiting:
+   ```
+   https://github.com/username/WeatherApp
+   ```
 
 ## Current Features
 

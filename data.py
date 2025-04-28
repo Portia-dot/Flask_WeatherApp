@@ -45,6 +45,7 @@ class DataManager:
         self.country = None
         self.air_pollution_data = None
         self.get_weather_by_city(self.city_name)
+        self.layer_name = 'precipitation_new'
 
     def fetch_geocoding_data(self):
         self.geo_coding_url = f'http://api.openweathermap.org/geo/1.0/direct?q={self.city_name}&limit={1}&appid={self.api_key}'
@@ -84,6 +85,10 @@ class DataManager:
             return None
         return air_pollution_data
 
+    def get_precipitation_tile_url(self):
+        print('called')
+        return f"https://tile.openweathermap.org/map/{self.layer_name}/{{z}}/{{x}}/{{y}}.png?appid={api_key}"
+
     def get_weather_by_city(self, city_name):
         print(f'Called', city_name, 'for weather data')
         self.city_name = city_name
@@ -93,6 +98,8 @@ class DataManager:
         self.weather_data = self.fetch_weather_data()
         self.air_pollution_data = self.get_air_pollution()
         return self.get_current_weather()
+
+
 
     def get_current_weather(self):
         if not self.weather_data:

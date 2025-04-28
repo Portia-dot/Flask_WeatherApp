@@ -10,6 +10,7 @@ app = Flask(__name__)
 def home():
 
     data_manager = DataManager()
+    tile_url =  data_manager.get_precipitation_tile_url()
 
     # city_info = None
     # weather = None
@@ -25,12 +26,14 @@ def home():
     city_info = {
             'city': data_manager.city_name,
             'state': data_manager.state,
-            'country': data_manager.country
+            'country': data_manager.country,
+            'lat': data_manager.lat,
+            'lon': data_manager.lon,
         }
     if not weather:
         return redirect('/error')
     print(weather)
-    return render_template('index.html', city_info=city_info, weather=weather)
+    return render_template('index.html', city_info=city_info, weather=weather, tile_url=tile_url)
 
 
 @app.route('/error')

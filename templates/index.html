@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 </head>
 <body>
 <div class="container">
@@ -81,7 +83,7 @@
         <div class="map-container">
             <h3>Precipitation Map</h3>
             <div class="map-placeholder">
-                <span>Weather Map</span>
+                <div id="map"></div>
             </div>
             <button class="map-button">Open Map</button>
         </div>
@@ -190,9 +192,8 @@
     </div>
 </div>
 
-<!-- Optional JavaScript for interactivity -->
+
 <script>
-    // This would be replaced with actual weather data and functionality
     document.addEventListener('DOMContentLoaded', function() {
         // Tab switching
         const tabs = document.querySelectorAll('.tab');
@@ -212,6 +213,30 @@
             });
         });
     });
+
+    //Map
+    var map = L.map('map').setView([{{city_info.lat  }}, {{city_info.lon }}], 5);
+
+    // Base map
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 10
+    }).addTo(map);
+
+    // Weather overlay
+    L.tileLayer('{{ tile_url }}', {
+        attribution: '© OpenWeatherMap',
+        maxZoom: 18,
+        opacity: 1
+    }).addTo(map);
+
+    // Fix map display issue by triggering a resize event after the map is loaded
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 100);
+
 </script>
+
+
 </body>
 </html>

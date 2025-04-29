@@ -31,6 +31,20 @@ def wind_speed_to_kph(m_s):
 
 def visibility_to_km(m):
     return round(m / 1000, 2)
+def map_cloud_percentage_to_label(clouds):
+    if clouds <= 10:
+        return 'Clear'
+    elif clouds <= 30:
+        return 'Few clouds'
+    elif clouds <= 50:
+        return 'Scattered clouds'
+    elif clouds <= 70:
+        return 'Broken clouds'
+    elif clouds <= 80:
+        return 'Overcast clouds'
+    else:
+        return None
+
 
 class DataManager:
     def __init__(self, city_name = 'Montreal'):
@@ -44,8 +58,10 @@ class DataManager:
         self.state = None
         self.country = None
         self.air_pollution_data = None
-        self.get_weather_by_city(self.city_name)
+        # self.get_weather_by_city(self.city_name)
         self.layer_name = 'precipitation_new'
+        self.hourly_data = []
+
 
     def fetch_geocoding_data(self):
         self.geo_coding_url = f'http://api.openweathermap.org/geo/1.0/direct?q={self.city_name}&limit={1}&appid={self.api_key}'
@@ -86,35 +102,54 @@ class DataManager:
         return air_pollution_data
 
     def get_precipitation_tile_url(self):
-        print('called')
         return f"https://tile.openweathermap.org/map/{self.layer_name}/{{z}}/{{x}}/{{y}}.png?appid={api_key}"
 
     def get_weather_by_city(self, city_name):
-        print(f'Called', city_name, 'for weather data')
         self.city_name = city_name
         lat_lon = self.fetch_geocoding_data()
         if not lat_lon or not self.lat or not self.lon :
             return None
         self.weather_data = self.fetch_weather_data()
         self.air_pollution_data = self.get_air_pollution()
-        return self.get_current_weather()
+        return self.get_current_weather(), self.get_hourly_weather()
 
 
+
+    def get_hourly_weather(self):
+        if not self.weather_data:
+            return None
+        four_hours_report = self.weather_data['hourly'][:4]
+        for report in four_hours_report:
+            self.hourly_data.append({
+                'temperature': round(convert_kelvin_to_celsius(report['temp'])),
+                'humidity': report['humidity'],
+                'dew_point': round(convert_kelvin_to_celsius(report['dew_point'])),
+                'pressure': report['pressure'],
+                'wind': wind_speed_to_kph(report['wind_speed']),
+                'feels_like': round(convert_kelvin_to_celsius(report['feels_like'])),
+                'visibility': round(visibility_to_km(report['visibility'])),
+                'uvi': round(report['uvi']),
+                'clouds': map_cloud_percentage_to_label(report['clouds']),
+                'air_quality': self.get_current_air_quality(),
+            })
+        return {
+            'hourly_data': self.hourly_data,
+        }
 
     def get_current_weather(self):
         if not self.weather_data:
             return None
         return {
-            'temperature': convert_kelvin_to_celsius(self.weather_data['current']['temp']),
+            'temperature': round(convert_kelvin_to_celsius(self.weather_data['current']['temp'])),
             'humidity': self.weather_data['current']['humidity'],
-            'dew_point': convert_kelvin_to_celsius(self.weather_data['current']['dew_point']),
+            'dew_point': round(convert_kelvin_to_celsius(self.weather_data['current']['dew_point'])),
             'pressure': self.weather_data['current']['pressure'],
             'wind': wind_speed_to_kph(self.weather_data['current']['wind_speed']),
-            'feels_like': convert_kelvin_to_celsius(self.weather_data['current']['feels_like']),
-            'visibility': visibility_to_km(self.weather_data['current']['visibility']),
+            'feels_like': round(convert_kelvin_to_celsius(self.weather_data['current']['feels_like'])),
+            'visibility': round(visibility_to_km(self.weather_data['current']['visibility'])),
             'air_quality': self.get_current_air_quality(),
-            'clouds': self.weather_data['current']['clouds'],
-            'uvi': self.weather_data['daily'][0]['uvi'],
+            'clouds': map_cloud_percentage_to_label(self.weather_data['current']['clouds']),
+            'uvi': round(self.weather_data['daily'][0]['uvi']),
 
 
         }

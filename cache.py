@@ -32,3 +32,7 @@ def save_cache_file(data, name):
     }
     with open(name, 'w') as file:
         json.dump(data_to_cache, file)
+
+def delete_cache_file():
+    if os.path.exists(CACHE_FILE_NAME):
+        os.remove(CACHE_FILE_NAME)

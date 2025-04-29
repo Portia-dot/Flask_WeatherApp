@@ -90,6 +90,9 @@ function generateTimeLabels() {
     return labels;
 }
 
+
+
+
 function addWeatherIcons(container, icons, values, unit = '') {
     // Create container for icons
     const iconContainer = document.createElement('div');
@@ -170,148 +173,6 @@ function generateForecastListItems() {
     });
 }
 
-// Temperature Chart
-function initTemperatureChart() {
-    // Get the canvas element
-    const ctx = document.getElementById('temperatureChart').getContext('2d');
-    const chartContainer = document.getElementById('overview-chart').querySelector('.chart-container');
-
-    // Generate time labels (24 hours, in 2-hour steps)
-    const timeLabels = generateTimeLabels();
-
-    // Hardcoded temperature data
-    const temperatureData = [22.5, 24.1, 25.7, 26.3, 25.8, 24.2, 22.9, 21.5, 20.1, 19.3, 18.7, 18.2, 17.9];
-
-    // Hardcoded "feels like" temperature data
-    const feelsLikeData = [23.2, 25.0, 26.2, 27.1, 26.3, 24.8, 23.1, 21.0, 19.5, 18.7, 18.0, 17.5, 17.2];
-
-    // Hardcoded weather condition icons
-    const weatherIcons = ['sun', 'sun', 'sun', 'cloud-sun', 'cloud-sun', 'cloud', 'cloud', 'cloud-rain', 'cloud-rain', 'cloud-showers-heavy', 'cloud-showers-heavy', 'cloud', 'cloud'];
-
-    // Create gradient for the area under the curve
-    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, 'rgba(255, 183, 0, 0.7)');
-    gradient.addColorStop(1, 'rgba(255, 183, 0, 0.1)');
-
-    // Create chart configuration
-    const chartConfig = {
-        type: 'line',
-        data: {
-            labels: timeLabels,
-            datasets: [
-                {
-                    label: 'Temperature (°C)',
-                    data: temperatureData,
-                    borderColor: '#ffb700',
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#ffb700',
-                    pointBorderColor: '#ffb700',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Feels Like (°C)',
-                    data: feelsLikeData,
-                    borderColor: 'rgba(255, 255, 255, 0.6)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(255, 255, 255, 0.6)',
-                    pointBorderColor: 'rgba(255, 255, 255, 0.6)',
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    tension: 0.4,
-                    fill: false,
-                    hidden: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: 'rgba(22, 27, 34, 0.9)',
-                    titleColor: '#f0f6fc',
-                    bodyColor: '#f0f6fc',
-                    borderColor: '#30363d',
-                    borderWidth: 1,
-                    padding: 10,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            const datasetLabel = context.dataset.label || '';
-                            const value = context.parsed.y;
-                            return `${datasetLabel}: ${value}°C`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        color: 'rgba(48, 54, 61, 0.5)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        color: '#8b949e',
-                        font: {
-                            size: 12
-                        }
-                    }
-                },
-                y: {
-                    min: 5,
-                    max: 35,
-                    grid: {
-                        color: 'rgba(48, 54, 61, 0.5)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        color: '#8b949e',
-                        font: {
-                            size: 12
-                        },
-                        callback: function(value) {
-                            return value + '°C';
-                        }
-                    }
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            },
-            animation: {
-                duration: 1000,
-                easing: 'easeOutQuart'
-            }
-        }
-    };
-
-    // Create the chart
-    const temperatureChart = new Chart(ctx, chartConfig);
-
-    // Add weather icons to the chart
-    addWeatherIcons(chartContainer, weatherIcons, temperatureData, '°');
-
-    // Add "Now" indicator
-    addNowIndicator(chartContainer);
-
-    // Add event listener for the "Feels Like" toggle
-    document.getElementById('feelsLikeToggle').addEventListener('change', function() {
-        const feelsLikeDataset = temperatureChart.data.datasets[1];
-        feelsLikeDataset.hidden = !this.checked;
-        temperatureChart.update();
-    });
-}
 
 // Precipitation Chart
 function initPrecipitationChart() {

@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect
+from idna.idnadata import scripts
+
 from data import DataManager
 from google_gen_ai import get_weather_summary
-from cache import load_cache_file, save_cache_file
+from cache import load_cache_file, save_cache_file, delete_cache_file
 
 
 app = Flask(__name__)
@@ -13,12 +15,14 @@ def home():
     tile_url = data_manager.get_precipitation_tile_url()
     cached_data = load_cache_file()
 
-    if cached_data:
-        return render_template('index.html', **cached_data['data'])
-
     if request.method == 'POST':
         city = request.form.get('user_search')
         data_manager.city_name = city
+        delete_cache_file()
+
+    if cached_data:
+        return render_template('index.html', **cached_data['data'])
+
 
     weather, hourly = data_manager.get_weather_by_city(city_name=data_manager.city_name)
     if not hourly:
@@ -58,5 +62,8 @@ def error():
 @app.route('/map')
 def open_map():
     return 'Working on the map'
+
+
+#JS Injection
 if __name__ == '__main__':
     app.run(debug=True)

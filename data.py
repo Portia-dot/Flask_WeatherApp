@@ -1,5 +1,5 @@
 import os
-
+from datetime import datetime
 from dotenv import load_dotenv
 import requests
 
@@ -70,6 +70,7 @@ class DataManager:
         self.layer_name = 'precipitation_new'
         self.hourly_data = []
         self.two_days_data = []
+        self.seven_days_data = []
 
 
     # Method to fetch geographic coordinates for a city name
@@ -133,7 +134,6 @@ class DataManager:
     def get_hourly_weather(self):
         if not self.weather_data:
             return None
-        print("Hourly length:", len(self.weather_data['hourly']))
         report = self.weather_data['hourly'][:4]
         four_hours_report = self.weather_data_returns(report, self.hourly_data)
         return four_hours_report
@@ -142,11 +142,26 @@ class DataManager:
     def get_24_hours_data(self):
         if not self.weather_data:
             return None
-        print("Hourly length:", len(self.weather_data['hourly']))
         report = self.weather_data['hourly'][:24]
         two_day_report = self.weather_data_returns(report, self.two_days_data)
         return two_day_report
 
+    # Method to get weather data for the next 7 days
+    def get_seven_days(self):
+        if not self.weather_data:
+            return None
+        report = self.weather_data['daily'][:7]
+        for day in report:
+            day_of_week = datetime.fromtimestamp(day['dt']).strftime('%a')
+            self.seven_days_data.append({
+                'timestamp': day_of_week,
+                'temperature_high': round(convert_kelvin_to_celsius(day['temp']['max'])),
+                'temperature_low': round(convert_kelvin_to_celsius(day['temp']['min'])),
+                'humidity': day['humidity'],
+            })
+        return {
+            'daily_data':self.seven_days_data,
+        }
     # Method to process and format weather data for display
     def weather_data_returns(self, time_report, data_list_name = None):
 

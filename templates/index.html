@@ -202,69 +202,26 @@
             </div>
         </div>
         <div class="forecast-cards">
-            <!-- Day 1 -->
+            {% for day in weekly.daily_data %}
             <div class="forecast-card">
-                <div class="day">Mon</div>
+                <div class="day">{{ day.timestamp }}</div>
                 <div class="forecast-icon">
+                    {% if day.humidity < 40 %}
+                    <i class="fas fa-sun" style="color: var(--accent-color);"></i>
+                    {% elif day.humidity < 60 %}
                     <i class="fas fa-cloud-sun" style="color: var(--accent-color);"></i>
-                </div>
-                <div class="temp-high">19°C</div>
-                <div class="temp-low">12°C</div>
-            </div>
-            <!-- Day 2 -->
-            <div class="forecast-card">
-                <div class="day">Tue</div>
-                <div class="forecast-icon">
+                    {% elif day.humidity < 80 %}
                     <i class="fas fa-cloud" style="color: var(--accent-color);"></i>
-                </div>
-                <div class="temp-high">17°C</div>
-                <div class="temp-low">11°C</div>
-            </div>
-            <!-- Day 3 -->
-            <div class="forecast-card">
-                <div class="day">Wed</div>
-                <div class="forecast-icon">
+                    {% elif day.humidity < 90 %}
                     <i class="fas fa-cloud-rain" style="color: var(--accent-color);"></i>
-                </div>
-                <div class="temp-high">15°C</div>
-                <div class="temp-low">10°C</div>
-            </div>
-            <!-- Day 4 -->
-            <div class="forecast-card">
-                <div class="day">Thu</div>
-                <div class="forecast-icon">
+                    {% else %}
                     <i class="fas fa-cloud-showers-heavy" style="color: var(--accent-color);"></i>
+                    {% endif %}
                 </div>
-                <div class="temp-high">14°C</div>
-                <div class="temp-low">9°C</div>
+                <div class="temp-high">{{ day.temperature_high }}°C</div>
+                <div class="temp-low">{{ day.temperature_low }}°C</div>
             </div>
-            <!-- Day 5 -->
-            <div class="forecast-card">
-                <div class="day">Fri</div>
-                <div class="forecast-icon">
-                    <i class="fas fa-cloud-sun" style="color: var(--accent-color);"></i>
-                </div>
-                <div class="temp-high">16°C</div>
-                <div class="temp-low">10°C</div>
-            </div>
-            <!-- Day 6 -->
-            <div class="forecast-card">
-                <div class="day">Sat</div>
-                <div class="forecast-icon">
-                    <i class="fas fa-sun" style="color: var(--accent-color);"></i>
-                </div>
-                <div class="temp-high">18°C</div>
-                <div class="temp-low">12°C</div>
-            </div>
-            <!-- Day 7 -->
-            <div class="forecast-card">
-                <div class="day">Sun</div>
-                <div class="forecast-icon">
-                    <i class="fas fa-sun" style="color: var(--accent-color);"></i>
-                </div>
-                <div class="temp-high">20°C</div>
-                <div class="temp-low">13°C</div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -441,18 +398,28 @@ function addNowIndicator(container) {
 function generateForecastListItems() {
     const listContainer = document.querySelector('.forecast-list-container');
     const timeLabels = generateTimeLabels();
-
-    {#// Hardcoded temperature data#}
-    {#const temperatureData = [22.5, 24.1, 25.7, 26.3, 25.8, 24.2, 22.9, 21.5, 20.1, 19.3, 18.7, 18.2, 17.9];#}
-    {##}
-    {#// Hardcoded weather icons based on temperature#}
-    {#const weatherIcons = ['sun', 'sun', 'sun', 'cloud-sun', 'cloud-sun', 'cloud', 'cloud', 'cloud-rain', 'cloud-rain', 'cloud-showers-heavy', 'cloud-showers-heavy', 'cloud', 'cloud'];#}
-
     // Clear existing items
     listContainer.innerHTML = '';
 
+    // Check if hourly data is available
+    if (!hourly || !Array.isArray(hourly.hourly_data)) {
+        console.error("hourly.hourly_data is not an array or is undefined.");
+        return; // Exit if no data is available
+    }
+
+    // Extract data from hourly data
+    const temperatureData = hourly.hourly_data.map(d => d.temperature);
+    const weatherIcons = hourly.hourly_data.map(d => {
+        if (d.clouds && d.clouds.toLowerCase().includes('cloud')) return 'cloud';
+        return 'sun';  // fallback
+    });
+    const humidityData = hourly.hourly_data.map(d => d.humidity);
+    const windData = hourly.hourly_data.map(d => d.wind);
+
     // Create list items
     timeLabels.forEach((time, index) => {
+        if (index >= hourly.hourly_data.length) return; // Skip if index is out of bounds
+
         const listItem = document.createElement('div');
         listItem.className = 'forecast-list-item';
 
@@ -470,9 +437,19 @@ function generateForecastListItems() {
         tempElement.className = 'forecast-list-temp';
         tempElement.textContent = `${temperatureData[index]}°C`;
 
+        const humidityElement = document.createElement('div');
+        humidityElement.className = 'forecast-list-humidity';
+        humidityElement.textContent = `Humidity: ${humidityData[index]}%`;
+
+        const windElement = document.createElement('div');
+        windElement.className = 'forecast-list-wind';
+        windElement.textContent = `Wind: ${windData[index]} km/h`;
+
         listItem.appendChild(timeElement);
         listItem.appendChild(iconElement);
         listItem.appendChild(tempElement);
+        listItem.appendChild(humidityElement);
+        listItem.appendChild(windElement);
 
         listContainer.appendChild(listItem);
     });
@@ -485,8 +462,23 @@ function initPrecipitationChart() {
     const chartContainer = document.getElementById('precipitation-chart').querySelector('.chart-container');
     const timeLabels = generateTimeLabels();
 
-    // Hardcoded precipitation data (0-100%)
-    const precipitationData = [10, 15, 25, 45, 65, 70, 55, 40, 30, 20, 15, 10, 5];
+    // Derive precipitation data from cloud cover (since direct precipitation data is not available)
+    let precipitationData = [];
+    if (!hourly || !Array.isArray(hourly.hourly_data)) {
+        console.error("hourly.hourly_data is not an array or is undefined.");
+    } else {
+        // Derive precipitation probability from cloud cover
+        precipitationData = hourly.hourly_data.map(d => {
+            const cloudLabel = d.clouds;
+            // Estimate precipitation probability based on cloud cover
+            if (cloudLabel === 'Clear') return 5;
+            if (cloudLabel === 'Few clouds') return 15;
+            if (cloudLabel === 'Scattered clouds') return 30;
+            if (cloudLabel === 'Broken clouds') return 50;
+            if (cloudLabel === 'Overcast clouds') return 70;
+            return 10; // Default value
+        });
+    }
 
     // Create gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -593,8 +585,13 @@ function initWindChart() {
     const chartContainer = document.getElementById('wind-chart').querySelector('.chart-container');
     const timeLabels = generateTimeLabels();
 
-    // Hardcoded wind data (0-50 km/h)
-    const windData = [15, 18, 22, 25, 30, 35, 32, 28, 25, 20, 18, 15, 12];
+    // Extract wind data from hourly data
+    let windData = [];
+    if (!hourly || !Array.isArray(hourly.hourly_data)) {
+        console.error("hourly.hourly_data is not an array or is undefined.");
+    } else {
+        windData = hourly.hourly_data.map(d => d.wind);
+    }
 
     // Create gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -695,8 +692,20 @@ function initAirQualityChart() {
     const chartContainer = document.getElementById('air-quality-chart').querySelector('.chart-container');
     const timeLabels = generateTimeLabels();
 
-    // Hardcoded air quality data (1-5, where 1 is good and 5 is very poor)
-    const airQualityData = [1.5, 1.8, 2.2, 2.5, 3.0, 3.2, 2.8, 2.5, 2.2, 2.0, 1.8, 1.5, 1.3];
+    // Extract air quality data from hourly data
+    let airQualityData = [];
+    if (!hourly || !Array.isArray(hourly.hourly_data)) {
+        console.error("hourly.hourly_data is not an array or is undefined.");
+        // Fallback to hardcoded data if hourly data is not available
+        airQualityData = [1.5, 1.8, 2.2, 2.5, 3.0, 3.2, 2.8, 2.5, 2.2, 2.0, 1.8, 1.5, 1.3];
+    } else {
+        airQualityData = hourly.hourly_data.map(d => {
+            if (d.air_quality && d.air_quality.air_quality) {
+                return d.air_quality.air_quality;
+            }
+            return 1; // Default to good air quality if data is missing
+        });
+    }
 
     // Create gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -816,8 +825,13 @@ function initHumidityChart() {
     const chartContainer = document.getElementById('humidity-chart').querySelector('.chart-container');
     const timeLabels = generateTimeLabels();
 
-    // Hardcoded humidity data (30-100%)
-    const humidityData = [65, 70, 75, 80, 85, 80, 75, 70, 65, 60, 55, 50, 45];
+    // Extract humidity data from hourly data
+    let humidityData = [];
+    if (!hourly || !Array.isArray(hourly.hourly_data)) {
+        console.error("hourly.hourly_data is not an array or is undefined.");
+    } else {
+        humidityData = hourly.hourly_data.map(d => d.humidity);
+    }
 
     // Create gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -923,8 +937,22 @@ function initCloudCoverChart() {
     const chartContainer = document.getElementById('cloud-cover-chart').querySelector('.chart-container');
     const timeLabels = generateTimeLabels();
 
-    // Hardcoded cloud cover data (0-100%)
-    const cloudCoverData = [20, 30, 45, 60, 75, 85, 70, 55, 40, 30, 25, 20, 15];
+    // Extract cloud cover data from hourly data
+    let cloudCoverData = [];
+    if (!hourly || !Array.isArray(hourly.hourly_data)) {
+        console.error("hourly.hourly_data is not an array or is undefined.");
+    } else {
+        // Convert cloud labels to percentages for visualization
+        cloudCoverData = hourly.hourly_data.map(d => {
+            const cloudLabel = d.clouds;
+            if (cloudLabel === 'Clear') return 5;
+            if (cloudLabel === 'Few clouds') return 20;
+            if (cloudLabel === 'Scattered clouds') return 40;
+            if (cloudLabel === 'Broken clouds') return 60;
+            if (cloudLabel === 'Overcast clouds') return 90;
+            return 0; // Default value
+        });
+    }
 
     // Create gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);

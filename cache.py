@@ -35,4 +35,7 @@ def save_cache_file(data, name):
 
 def delete_cache_file():
     if os.path.exists(CACHE_FILE_NAME):
-        os.remove(CACHE_FILE_NAME)
+        try:
+            os.remove(CACHE_FILE_NAME)
+        except OSError as e:
+            print(f'Error deleting cache file: {e}')

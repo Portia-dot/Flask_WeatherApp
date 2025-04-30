@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect
-from idna.idnadata import scripts
 
 from data import DataManager
 from google_gen_ai import get_weather_summary
@@ -40,6 +39,7 @@ def home():
     #24 hour data
 
     twenty_four_hour_data = data_manager.get_24_hours_data()
+    seven_days_data = data_manager.get_seven_days()
 
     if not weather:
         return redirect('/error')
@@ -49,6 +49,7 @@ def home():
         'tile_url': tile_url,
         'weather_ai': weather_ai,
         'hourly': twenty_four_hour_data,
+        'weekly': seven_days_data,
     }
 
     save_cache_file(pay_load, 'cache_weather.json')
